@@ -9,7 +9,7 @@
   (:gen-class))
 
 (defroutes app-routes
-  (GET "/echo" request
+  (POST "/echo" request
     (let [body (:body request)
           modified (if (nil? body) {} (assoc body :modified true))]
       {:status 200
