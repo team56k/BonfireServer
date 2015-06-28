@@ -6,32 +6,31 @@
             [ring.middleware.json :as middleware]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]])
   (:use [ring.middleware.reload]
+        [ring.middleware.params :only [wrap-params]]
         [clojure.pprint])
   (:gen-class))
 
 (defroutes app-routes
   (POST "/echo" request
     (let [_ (pprint request)
-          body (:body request)
-          modified (if (nil? body) {} (assoc body :modified true))]
+          params (:params request)
+          modified (if (nil? params) {} (assoc params :modified true))]
       {:status 200
        :body modified}))
   (route/not-found "Not Found"))
 
-(defn my-middleware [app]
+(defn debug-request [app]
   (fn [request]
-    ;; This is where you'd do any processing on the request
-    ;; Finally, keep the chain going by calling app
-    (println "Early middleware")
+    (println "Request:")
     (pprint request)
     (app request)))
 
 (def app
   (-> (handler/site app-routes)
       (wrap-reload)
-      (my-middleware)
-      (middleware/wrap-json-body {:keywords? true})
-      middleware/wrap-json-response))
+      (wrap-params)
+      (debug-request)
+      (middleware/wrap-json-response)))
 
 (defn start [port]
   (ring/run-jetty app {:port port
