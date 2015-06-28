@@ -18,9 +18,18 @@
        :body modified}))
   (route/not-found "Not Found"))
 
+(defn my-middleware [app]
+  (fn [request]
+    ;; This is where you'd do any processing on the request
+    ;; Finally, keep the chain going by calling app
+    (println "Early middleware")
+    (pprint request)
+    (app request)))
+
 (def app
   (-> (handler/site app-routes)
       (wrap-reload)
+      (my-middleware)
       (middleware/wrap-json-body {:keywords? true})
       middleware/wrap-json-response))
 
