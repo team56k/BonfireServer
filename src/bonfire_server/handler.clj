@@ -5,12 +5,14 @@
             [ring.adapter.jetty :as ring]
             [ring.middleware.json :as middleware]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]])
-  (:use ring.middleware.reload)
+  (:use [ring.middleware.reload]
+        [clojure.pprint])
   (:gen-class))
 
 (defroutes app-routes
   (POST "/echo" request
-    (let [body (:body request)
+    (let [_ (pprint request)
+          body (:body request)
           modified (if (nil? body) {} (assoc body :modified true))]
       {:status 200
        :body modified}))
